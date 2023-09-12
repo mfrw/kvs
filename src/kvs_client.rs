@@ -6,7 +6,7 @@ use structopt::StructOpt;
 use tonic::transport::channel::Endpoint;
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "kvs-client")]
+#[structopt(name = "client")]
 struct Opt {
     #[structopt(name = "ID")]
     id: String,

@@ -15,7 +15,7 @@ use tokio::sync::RwLock;
 const USE_FILE_BACKEND: u8 = 0;
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "kvs-server")]
+#[structopt(name = "server")]
 struct Opt {
     // use persistent storage with is identified by the given id.
     #[structopt(long)]
