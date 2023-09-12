@@ -34,6 +34,8 @@ struct Opt {
     compaction_interval_sec: Option<u64>,
     #[structopt(name = "ID")]
     id: String,
+    #[structopt(long)]
+    base_dir: String,
 }
 #[derive(serde::Serialize, serde::Deserialize, std::fmt::Debug)]
 pub struct Snapshot {
@@ -198,11 +200,11 @@ async fn main() {
         .init();
 
     if let Some(storage_id) = opt.use_persistency {
-        let root_dir = format!("/tmp/lol/{}", storage_id);
+        let root_dir = format!("{}/{}", opt.base_dir.clone(), storage_id);
         std::fs::create_dir_all(&root_dir).ok();
     }
     let app = if let Some(storage_id) = opt.use_persistency {
-        let root_dir = format!("/tmp/lol/{}/snapshots", storage_id);
+        let root_dir = format!("{}/{}/snapshots", opt.base_dir.clone(), storage_id);
         let root_dir = Path::new(&root_dir);
         if opt.reset_persistency {
             simple::FileRepository::destroy(&root_dir).unwrap();
@@ -213,7 +215,7 @@ async fn main() {
         ToRaftApp::new(app, simple::BytesRepository::new())
     };
     let service = if let Some(storage_id) = opt.use_persistency {
-        let path = format!("/tmp/lol/{}/store", storage_id);
+        let path = format!("{}/{}/store", opt.base_dir.clone(), storage_id);
         let path = Path::new(&path);
         match opt.persistency_backend {
             USE_FILE_BACKEND => {
