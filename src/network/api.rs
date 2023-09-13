@@ -31,17 +31,9 @@ pub async fn write(app: Data<App>, req: Json<Request>) -> actix_web::Result<impl
 pub async fn read(app: Data<App>, req: Json<String>) -> actix_web::Result<impl Responder> {
     let state_machine = app.store.state_machine.read().await;
     let key = req.0;
-    let value: Vec<u8> = state_machine
-        .db
-        .get(&key)
-        .unwrap_or_default()
-        .unwrap_or_default()
-        .iter()
-        .map(|b| *b)
-        .collect();
-    let value = String::from_utf8(value).unwrap_or("Non Printable val".into());
+    let value = state_machine.get(&key).unwrap_or_default();
 
-    let res: Result<String, Infallible> = Ok(value);
+    let res: Result<String, Infallible> = Ok(value.unwrap_or_default());
     Ok(Json(res))
 }
 
@@ -56,18 +48,10 @@ pub async fn consistent_read(
         Ok(_) => {
             let state_machine = app.store.state_machine.read().await;
             let key = req.0;
-            let value: Vec<u8> = state_machine
-                .db
-                .get(&key)
-                .unwrap_or_default()
-                .unwrap_or_default()
-                .iter()
-                .map(|b| *b)
-                .collect();
-            let value = String::from_utf8(value).unwrap_or("Non Printable val".into());
+            let value = state_machine.get(&key).unwrap_or_default();
 
             let res: Result<String, RaftError<NodeId, CheckIsLeaderError<NodeId, BasicNode>>> =
-                Ok(value);
+                Ok(value.unwrap_or_default());
             Ok(Json(res))
         }
         Err(e) => Ok(Json(Err(e))),
